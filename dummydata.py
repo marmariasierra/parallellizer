@@ -1,0 +1,38 @@
+def dummydata():
+    return """
+H  -rw-r--r--   1  mpd       rzs       7598821376 Jan 29 15:40 ./Machine_tsm1_filesystems_before_decommissioning.20180129.tar MIDX:2507 COS:51 FF:0 L0-DISK:0 L1-TAPE:71142200:7598821376 L2-TAPE:60673400:7598821376 
+G  -rw-r--r--   1  root      root       9366600 Jan 29 15:52 ./Machine_tsm1_filesystems_before_decommissioning.20180129.tar.toc
+H  -rw-r--r--   1  mpd       rzs        1168680 Aug 19 2015  ./adsm1.query_system MIDX:676 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965100:93414912 L2-TAPE:60299600:93414912 
+H  -rw-r--r--   1  mpd       rzs       118278123520 Aug 19 2015  ./adsm_data1_adsm1_dbbackup.tar MIDX:669 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965200:118278123520 L2-TAPE:60303000:118278123520 
+H  -rw-r--r--   1  mpd       rzs           3610 Aug 19 2015  ./adsm_data1_adsm1_dbbackup.tar.toc MIDX:676 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965100:93414912 L2-TAPE:60299600:93414912 
+H  -rw-r--r--   1  mpd       rzs       119319828480 Aug 19 2015  ./adsm_db1_adsm1_db.tar MIDX:669 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:119319828480 L2-TAPE:60299000:119319828480 
+H  -rw-r--r--   1  mpd       rzs          34444 Aug 19 2015  ./adsm_db1_adsm1_db.tar.toc MIDX:676 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965100:93414912 L2-TAPE:60299600:93414912 
+H  -rw-r--r--   1  mpd       rzs       34480783360 Aug 19 2015  ./adsm_db2_adsm1_log.tar MIDX:669 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965100:34480783360 L2-TAPE:60299600:34480783360 
+H  -rw-r--r--   1  mpd       rzs           8531 Aug 19 2015  ./adsm_db2_adsm1_log.tar.toc MIDX:676 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965100:93414912 L2-TAPE:60299600:93414912 
+H  -rw-r--r--   1  root      root      230549145600 Jun 10 2015  ./adsm_db1_adsm6.tar MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:230549145600 L2-TAPE:60299600:230549145600 
+H  -rw-r--r--   1  root      root            53 Jun 10 2015  ./adsm_db1_adsm6.tar.md5 MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+B  -rw-r--r--   1  root      root         41947 Jun 10 2015  ./adsm_db1_adsm6.tar.toc MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root           470 Jan 30 2016  ./md5sums.1 MIDX:855 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965200:7731806208 L2-TAPE:60299200:7731806208 
+H  -rw-r--r--   1  root      root           470 Jan 30 2016  ./md5sums.2 MIDX:855 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965200:7731806208 L2-TAPE:60299200:7731806208 
+H  -rw-r--r--   1  root      root      13557760 Jun 10 2015  ./tsm3.2015-06-10.home.tar MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root            59 Jun 10 2015  ./tsm3.2015-06-10.home.tar.md5 MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root          1507 Jun 10 2015  ./tsm3.2015-06-10.home.tar.toc MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root      2423756800 Jun 10 2015  ./tsm3.2015-06-10.opt.tar MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965200:2423756800 L2-TAPE:60299600:2423756800 
+H  -rw-r--r--   1  root      root            58 Jun 10 2015  ./tsm3.2015-06-10.opt.tar.md5 MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root       2680121 Jun 10 2015  ./tsm3.2015-06-10.opt.tar.toc MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+B  -rw-r--r--   1  root      root      104949760 Jun 10 2015  ./tsm3.2015-06-10.root_fs.tar MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root            62 Jun 10 2015  ./tsm3.2015-06-10.root_fs.tar.md5 MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root        859808 Jun 10 2015  ./tsm3.2015-06-10.root_fs.tar.toc MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root      1908049920 Jun 10 2015  ./tsm3.2015-06-10.tmp.tar MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965100:1908049920 L2-TAPE:60299600:1908049920 
+H  -rw-r--r--   1  root      root            58 Jun 10 2015  ./tsm3.2015-06-10.tmp.tar.md5 MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root         22205 Jun 10 2015  ./tsm3.2015-06-10.tmp.tar.toc MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root      3017523200 Jun 10 2015  ./tsm3.2015-06-10.usr.tar MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965500:3017523200 L2-TAPE:60299000:3017523200 
+H  -rw-r--r--   1  root      root            58 Jun 10 2015  ./tsm3.2015-06-10.usr.tar.md5 MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root       4830796 Jun 10 2015  ./tsm3.2015-06-10.usr.tar.toc MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root      34887680 Jun 10 2015  ./tsm3.2015-06-10.usr_local.tar MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root            64 Jun 10 2015  ./tsm3.2015-06-10.usr_local.tar.md5 MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root         10801 Jun 10 2015  ./tsm3.2015-06-10.usr_local.tar.toc MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root      1259827200 Jun 10 2015  ./tsm3.2015-06-10.var.tar MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:1259827200 L2-TAPE:60299600:1259827200 
+H  -rw-r--r--   1  root      root            58 Jun 10 2015  ./tsm3.2015-06-10.var.tar.md5 MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+H  -rw-r--r--   1  root      root        898231 Jun 10 2015  ./tsm3.2015-06-10.var.tar.toc MIDX:544 COS:51 FF:0 L0-DISK:0 L1-TAPE:03965000:162758144 L2-TAPE:60303000:162758144 
+"""
