@@ -45,19 +45,24 @@ class Reader():
     #     return tf.name
     #     #tf.close()
 
-    def get_stage_cmd(self):
-        cmd = ['ghi_stage -v -f ']
-        bckgr = ['&']
-        tf = tempfile.NamedTemporaryFile()
-        filestoread = self.__files_to_process
-        tf.write(filestoread + '\n')
-        #tf.seek(0)
-        #tf.close()
-        #return self.__files_to_process
-        return " ".join(cmd + tf.name + bckgr)
+    # def get_stage_cmd(self):
+    #     # cmd = ['ghi_stage -v -f ']
+    #     # bckgr = ['&']
+    #     tf = tempfile.NamedTemporaryFile()
+    #     #filestoread = self.__files_to_process
+    #     filestoread = ['dummydata.py', 'dummytest.py']
+    #     tf.writelines(filestoread)
+    #     tf.seek(0)
+    #     name = tf.name
+    #     #tf.close()
+    #     #return self.__files_to_process
+    #     #return " ".join(cmd + tf.name + bckgr)
+    #     #cmd = 'ghi_stage -v -f ' + name + ' &'
+    #     cmd = 'ls -l ' + name + ' &'
+    #     return (cmd)
 
 
-def get_data(file=None, folder=""):
+def get_data(file=None, folder=None):
     outputls = []
 
     if file:
@@ -65,10 +70,13 @@ def get_data(file=None, folder=""):
         for line in f:
             ghi_ls = os.popen('ghi_ls -le ' + line).read()
             outputls.append(ghi_ls)
-
-    else:
+    elif folder:
         outputls = os.popen('ghi_ls -le ' + folder).read()
+    else:
+        folder = ""
+        outputls = os.popen("ls " + folder).read()
         outputls = outputls.split('\n')
+        print(outputls)
 
     info = {}
     total_size_data = 0
@@ -76,7 +84,6 @@ def get_data(file=None, folder=""):
         match = re.search(r'(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L1-TAPE:([^:]+)', line)
         # to select only files that are in hpss: use match instead of search??)
         # match = re.search(r'(^H)\s.+\s(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L1-TAPE:([^:]+)', line)
-
 
         if match:
             size = int(match.group(1))
@@ -110,7 +117,6 @@ def get_next_reader(readers):
         if reader.get_size() < prev_reader_size:
             reader_number = index
         prev_reader_size = reader.get_size()
-    print("get_next")
     return reader_number
 
 
@@ -132,11 +138,25 @@ def assign_readers(number_readers, file, folder):
             print("Reader n: {0}, Size: {1}, Tapes: {2}".format(reader.number, reader.get_size(), reader.get_tapes()))
             print("Files to read: {0}".format(reader.get_file_names()))
 
-            stage_cmd = reader.get_stage_cmd()
-            print(stage_cmd)
-            #os.system(stage_cmd)
-            #os.system('ghi_stage -v -f' +t.read() + '&')
+            with tempfile.NamedTemporaryFile(dir=os.path.dirname(os.path.realpath(__file__))) as tf:
+                # filestoread = self.__files_to_process
+                filestoread = ['dummydata.py', 'dummytest.py']
+                tf.write("\n".join(filestoread))
+                tf.seek(0)
+                name = tf.name
+                #print(name)
+                #print(tf.read())
+                # cmd = 'ghi_stage -v -f ' + name + ' &'
+                cmd = 'ls -l ' + name + ' &'
+                print(cmd)
+                os.system(cmd)
+                #os.system('ls -ltr /tmp')
+                #os.system(cmd)
+                print(name)
 
+                # stage_cmd = reader.get_stage_cmd()
+                # print(stage_cmd)
+                # os.system(stage_cmd)
 
     except Exception as e:
         print("ERROR:{0}".format(e))
@@ -153,7 +173,6 @@ if __name__ == "__main__":
                         help='path to directory containing files to copy')
     args = parser.parse_args()
     assign_readers(number_readers=args.readers, file=args.file, folder=args.folder)
-
 
 # to capture errors
 # try:
