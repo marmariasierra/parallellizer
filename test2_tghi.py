@@ -37,6 +37,7 @@ class Reader():
     def get_file_names(self):
         return self.__files_to_process
 
+
     # def get_file_names(self):
     #     tf = tempfile.NamedTemporaryFile()
     #     filestoread = self.__files_to_process
@@ -138,21 +139,17 @@ def assign_readers(number_readers, file, folder):
             print("Reader n: {0}, Size: {1}, Tapes: {2}".format(reader.number, reader.get_size(), reader.get_tapes()))
             print("Files to read: {0}".format(reader.get_file_names()))
 
-            with tempfile.NamedTemporaryFile(dir=os.path.dirname(os.path.realpath(__file__))) as tf:
-                # filestoread = self.__files_to_process
-                filestoread = ['dummydata.py', 'dummytest.py']
-                tf.write("\n".join(filestoread))
-                tf.seek(0)
-                name = tf.name
-                #print(name)
-                #print(tf.read())
-                # cmd = 'ghi_stage -v -f ' + name + ' &'
-                cmd = 'ls -l ' + name + ' &'
-                print(cmd)
+            with tempfile.NamedTemporaryFile() as tmp:
+                # filename = reader.get_file_names()# TODO: Descomentar en operacional
+                filenames = open("dummy_list_of_filenames").readlines()
+                tmp.writelines(filenames)
+                tmp.seek(0)
+
+                print(tmp.read())
+
+                # cmd = "ghi_stage -v -f %s &" % tmp.name
+                cmd = "ls -l %s" % tmp.name
                 os.system(cmd)
-                #os.system('ls -ltr /tmp')
-                #os.system(cmd)
-                print(name)
 
                 # stage_cmd = reader.get_stage_cmd()
                 # print(stage_cmd)
