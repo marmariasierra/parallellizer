@@ -3,9 +3,15 @@
 import re
 import os
 import argparse
-from collections import OrderedDict
+from concurrent_cus import futures
 import tempfile
+import subprocess
+import logging
 
+from collections import OrderedDict
+
+logging.basicConfig(level=logging.DEBUG, format='%(relativeCreated)6d %(threadName)s %(message)s')
+logger = logging.getLogger(__name__)
 
 class Reader():
 
@@ -36,6 +42,9 @@ class Reader():
 
     def get_file_names(self):
         return self.__files_to_process
+
+    def set_execute_result(self, output):
+        self.cmd_output = output
 
 
     # def get_file_names(self):
@@ -77,7 +86,7 @@ def get_data(file=None, folder=None):
         folder = ""
         outputls = os.popen("ls " + folder).read()
         outputls = outputls.split('\n')
-        print(outputls)
+        logger.debug(outputls)
 
     info = {}
     total_size_data = 0
@@ -105,7 +114,7 @@ def init_readers(number_readers, reader_size):
     readers = []
     for i in range(int(number_readers)):
         readers.append(Reader(i, reader_size))
-    print("init_readers")
+    logger.debug("init_readers")
     return readers
 
 
@@ -121,6 +130,28 @@ def get_next_reader(readers):
     return reader_number
 
 
+def execute_read_cmd(reader):
+    ssize = float(reader.get_size()) / 1000000000
+    logger.debug("Ssize: %d" % ssize)
+    logger.debug("Reader n: {0}, Size: {1}, Tapes: {2}".format(reader.number, reader.get_size(), reader.get_tapes()))
+    logger.debug("Files to read: {0}".format(reader.get_file_names()))
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        # filename = reader.get_file_names()# TODO: uncomment in prod
+        filenames = open("dummy_list_of_filenames").readlines() # TODO: remove in prod
+        tmp.writelines(filenames)
+        tmp.seek(0)
+        # cmd = "ghi_stage -v -f %s &" % tmp.name # TODO: uncomment in prod
+        cmd = "less {0}".format(tmp.name) # TODO: remove in prod
+        # out = os.popen(cmd).read()
+        out = os.system(cmd)
+        reader.set_execute_result(out)
+        return reader
+
+def check_reader_result(future):
+    reader = future.result()
+    logger.debug("\nReader: {0} \nOutput: {1}".format(reader.number, reader.cmd_output))
+
 def assign_readers(number_readers, file, folder):
     try:
 
@@ -133,30 +164,14 @@ def assign_readers(number_readers, file, folder):
             readers[active_reader].add_size(tape[1].get('total_size'))
             readers[active_reader].add_tape(tape[0])
 
-        for reader in readers:
-            ssize = float(reader.get_size()) / 1000000000
-            print("Ssize: %d" % ssize)
-            print("Reader n: {0}, Size: {1}, Tapes: {2}".format(reader.number, reader.get_size(), reader.get_tapes()))
-            print("Files to read: {0}".format(reader.get_file_names()))
+        with futures.ThreadPoolExecutor(max_workers=number_readers) as readers_threads:
+            for reader in readers:
+                job = readers_threads.submit(execute_read_cmd, reader, )
+                job.add_done_callback(check_reader_result)
 
-            with tempfile.NamedTemporaryFile() as tmp:
-                # filename = reader.get_file_names()# TODO: Descomentar en operacional
-                filenames = open("dummy_list_of_filenames").readlines()
-                tmp.writelines(filenames)
-                tmp.seek(0)
-
-                print(tmp.read())
-
-                # cmd = "ghi_stage -v -f %s &" % tmp.name
-                cmd = "ls -l %s" % tmp.name
-                os.system(cmd)
-
-                # stage_cmd = reader.get_stage_cmd()
-                # print(stage_cmd)
-                # os.system(stage_cmd)
 
     except Exception as e:
-        print("ERROR:{0}".format(e))
+        logger.error("ERROR:{0}".format(e))
         raise e
 
 
