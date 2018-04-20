@@ -5,12 +5,11 @@ import os
 import argparse
 from concurrent_cus import futures
 import tempfile
-import subprocess
 import logging
 
 from collections import OrderedDict
 
-logging.basicConfig(level=logging.DEBUG, format='%(relativeCreated)6d %(threadName)s %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(threadName)s %(message)s')
 logger = logging.getLogger(__name__)
 
 class Reader():
@@ -47,46 +46,33 @@ class Reader():
         self.cmd_output = output
 
 
-    # def get_file_names(self):
-    #     tf = tempfile.NamedTemporaryFile()
-    #     filestoread = self.__files_to_process
-    #     tf.write(filestoread + '\n')
-    #     #tf.seek(0)
-    #     return tf.name
-    #     #tf.close()
+def get_all_files_from_dir(root):
+    result = []
+    for path, subdirs, files in os.walk(root):
+        for name in files:
+            result.append(os.path.join(path, name))
 
-    # def get_stage_cmd(self):
-    #     # cmd = ['ghi_stage -v -f ']
-    #     # bckgr = ['&']
-    #     tf = tempfile.NamedTemporaryFile()
-    #     #filestoread = self.__files_to_process
-    #     filestoread = ['dummydata.py', 'dummytest.py']
-    #     tf.writelines(filestoread)
-    #     tf.seek(0)
-    #     name = tf.name
-    #     #tf.close()
-    #     #return self.__files_to_process
-    #     #return " ".join(cmd + tf.name + bckgr)
-    #     #cmd = 'ghi_stage -v -f ' + name + ' &'
-    #     cmd = 'ls -l ' + name + ' &'
-    #     return (cmd)
+    return result
 
-
-def get_data(file=None, folder=None):
+def get_data(file_path=None, folder=None):
     outputls = []
 
-    if file:
-        f = open(file, 'r')
+    folder = folder if folder else ""
+    if file_path:
+        f = open(file_path, 'r')
         for line in f:
             ghi_ls = os.popen('ghi_ls -le ' + line).read()
             outputls.append(ghi_ls)
     elif folder:
-        outputls = os.popen('ghi_ls -le ' + folder).read()
+        files = get_all_files_from_dir(folder)
+        # outputls = [os.popen('ghi_ls -le ' + x).read() for x in files] #TODO: uncomment
+        outputls = [os.popen('ls -l ' + x).read() for x in files]  # TODO: remove
     else:
-        folder = ""
-        outputls = os.popen("ls " + folder).read()
-        outputls = outputls.split('\n')
-        logger.debug(outputls)
+        root = os.path.dirname(os.path.realpath(__file__))
+        files = get_all_files_from_dir(root)
+        # outputls = [os.popen('ghi_ls -le ' + x).read() for x in files] #TODO: uncomment
+        outputls = [os.popen('ls -l ' + x).read() for x in files]# TODO: remove
+
 
     info = {}
     total_size_data = 0
@@ -114,7 +100,7 @@ def init_readers(number_readers, reader_size):
     readers = []
     for i in range(int(number_readers)):
         readers.append(Reader(i, reader_size))
-    logger.debug("init_readers")
+    logger.debug("{0} Total readers initiated".format(len(readers)))
     return readers
 
 
@@ -130,6 +116,11 @@ def get_next_reader(readers):
     return reader_number
 
 
+def check_reader_result(future):
+    reader = future.result()
+    logger.debug("\nReader: {0} \nOutput: {1}".format(reader.number, reader.cmd_output))
+
+
 def execute_read_cmd(reader):
     ssize = float(reader.get_size()) / 1000000000
     logger.debug("Ssize: %d" % ssize)
@@ -137,25 +128,21 @@ def execute_read_cmd(reader):
     logger.debug("Files to read: {0}".format(reader.get_file_names()))
 
     with tempfile.NamedTemporaryFile() as tmp:
-        # filename = reader.get_file_names()# TODO: uncomment in prod
-        filenames = open("dummy_list_of_filenames").readlines() # TODO: remove in prod
+        # filename = reader.get_file_names()# TODO: uncomment
+        filenames = open("dummy_list_of_filenames").readlines()# TODO: remove
         tmp.writelines(filenames)
         tmp.seek(0)
-        # cmd = "ghi_stage -v -f %s &" % tmp.name # TODO: uncomment in prod
-        cmd = "less {0}".format(tmp.name) # TODO: remove in prod
+        # cmd = "ghi_stage -v -f %s &" % tmp.name# TODO: uncomment
+        cmd = "cat {0}".format(tmp.name)# TODO: remove
         # out = os.popen(cmd).read()
         out = os.system(cmd)
         reader.set_execute_result(out)
         return reader
 
-def check_reader_result(future):
-    reader = future.result()
-    logger.debug("\nReader: {0} \nOutput: {1}".format(reader.number, reader.cmd_output))
 
-def assign_readers(number_readers, file, folder):
-    try:
+def assign_readers(number_readers, file_path, folder):
 
-        ordered_info, total_size_data = get_data(file, folder)
+        ordered_info, total_size_data = get_data(file_path, folder)
         readers = init_readers(number_readers, reader_size=total_size_data)
 
         for tape in ordered_info.items():
@@ -164,11 +151,29 @@ def assign_readers(number_readers, file, folder):
             readers[active_reader].add_size(tape[1].get('total_size'))
             readers[active_reader].add_tape(tape[0])
 
+        return readers
+
+
+def validate_parameters(number_readers, file_path, folder):
+    if not isinstance(int(number_readers), int):
+        raise Exception("Number of readers parameter is not correct. Please provide an integer value")
+
+    if file_path and not os.path.exists(file_path):
+        raise Exception("File name provided is not correct or does not exists")
+
+    if folder and not os.path.isdir(folder):
+        raise Exception("Folder provided is not correct or does not exists")
+
+
+def main_process(number_readers, file_path, folder):
+    try:
+        validate_parameters(number_readers=number_readers, file_path=file_path, folder=folder)
+        readers = assign_readers(number_readers=number_readers, file_path=file_path, folder=folder)
+
         with futures.ThreadPoolExecutor(max_workers=number_readers) as readers_threads:
             for reader in readers:
                 job = readers_threads.submit(execute_read_cmd, reader, )
                 job.add_done_callback(check_reader_result)
-
 
     except Exception as e:
         logger.error("ERROR:{0}".format(e))
@@ -177,21 +182,12 @@ def assign_readers(number_readers, file, folder):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="parallel staging")
-    parser.add_argument('--readers', metavar='path', required=True,
+    parser.add_argument('--readers', metavar='int', required=True,
                         help='number of readers')
     parser.add_argument('--file', metavar='path',
                         help='file containing files to copy')
     parser.add_argument('--folder', metavar='path',
                         help='path to directory containing files to copy')
     args = parser.parse_args()
-    assign_readers(number_readers=args.readers, file=args.file, folder=args.folder)
 
-# to capture errors
-# try:
-#     retcode = call("mycmd" + " myarg", shell=True)
-#     if retcode < 0:
-#         print >>sys.stderr, "Child was terminated by signal", -retcode
-#     else:
-#         print >>sys.stderr, "Child returned", retcode
-# except OSError as e:
-#     print >>sys.stderr, "Execution failed:", e
+    main_process(number_readers=args.readers, file_path=args.file, folder=args.folder)
