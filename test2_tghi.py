@@ -5,12 +5,11 @@ import os
 import argparse
 from concurrent_cus import futures
 import tempfile
-import logging
+import threading
+
 
 from collections import OrderedDict
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(threadName)s %(message)s')
-logger = logging.getLogger(__name__)
 
 class Reader():
 
@@ -100,7 +99,7 @@ def init_readers(number_readers, reader_size):
     readers = []
     for i in range(int(number_readers)):
         readers.append(Reader(i, reader_size))
-    logger.debug("{0} Total readers initiated".format(len(readers)))
+    print("{0} Total readers initiated".format(len(readers)))
     return readers
 
 
@@ -116,16 +115,11 @@ def get_next_reader(readers):
     return reader_number
 
 
-def check_reader_result(future):
-    reader = future.result()
-    logger.debug("\nReader: {0} \nOutput: {1}".format(reader.number, reader.cmd_output))
-
-
 def execute_read_cmd(reader):
     ssize = float(reader.get_size()) / 1000000000
-    logger.debug("Ssize: %d" % ssize)
-    logger.debug("Reader n: {0}, Size: {1}, Tapes: {2}".format(reader.number, reader.get_size(), reader.get_tapes()))
-    logger.debug("Files to read: {0}".format(reader.get_file_names()))
+    print("Ssize: %d" % ssize)
+    print("Reader n: {0}, Size: {1}, Tapes: {2}".format(reader.number, reader.get_size(), reader.get_tapes()))
+    print("Files to read: {0}".format(reader.get_file_names()))
 
     with tempfile.NamedTemporaryFile() as tmp:
         # filename = reader.get_file_names()# TODO: uncomment
@@ -154,29 +148,18 @@ def assign_readers(number_readers, file_path, folder):
         return readers
 
 
-def validate_parameters(number_readers, file_path, folder):
-    if not isinstance(int(number_readers), int):
-        raise Exception("Number of readers parameter is not correct. Please provide an integer value")
-
-    if file_path and not os.path.exists(file_path):
-        raise Exception("File name provided is not correct or does not exists")
-
-    if folder and not os.path.isdir(folder):
-        raise Exception("Folder provided is not correct or does not exists")
-
-
 def main_process(number_readers, file_path, folder):
     try:
-        validate_parameters(number_readers=number_readers, file_path=file_path, folder=folder)
         readers = assign_readers(number_readers=number_readers, file_path=file_path, folder=folder)
 
-        with futures.ThreadPoolExecutor(max_workers=number_readers) as readers_threads:
-            for reader in readers:
-                job = readers_threads.submit(execute_read_cmd, reader, )
-                job.add_done_callback(check_reader_result)
+        threads = []
+        for reader in readers:
+            threads.append(threading.Thread(target=execute_read_cmd, args=(reader,)))
+
+        [thread.start() for thread in threads]
 
     except Exception as e:
-        logger.error("ERROR:{0}".format(e))
+        print("ERROR:{0}".format(e))
         raise e
 
 
