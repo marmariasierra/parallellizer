@@ -1,0 +1,11 @@
+/testghi/find.-ls.after
+/testghi/find.-ls.after_ghi_2.5_restore_test 
+/testghi/find.-ls.before_ghi_2.5_restore_test
+/testghi/find.-print.after
+/testghi/find.after
+/testghi/find.before
+/testghi/ghi.after
+/testghi/ghi.before
+/testghi/ghi_ls-lheR.after
+/testghi/ghi_ls-lheR.after_ghi_2.5_restore_test
+
