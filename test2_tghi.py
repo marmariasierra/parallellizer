@@ -52,12 +52,12 @@ def get_all_files_from_dir(root):
 
     return result
 
-def get_data(file_path=None, folder=None):
+def get_data(file_name=None, folder=None):
     outputls = []
 
     folder = folder if folder else ""
-    if file_path:
-        f = open(file_path, 'r')
+    if file_name:
+        f = open(file_name, 'r')
         for line in f:
             ghi_ls = os.popen('ghi_ls -le ' + line).read()
             outputls.append(ghi_ls)
@@ -133,9 +133,9 @@ def execute_read_cmd(reader):
         return reader
 
 
-def assign_readers(number_readers, file_path, folder):
+def assign_readers(number_readers, file_name, folder):
 
-        ordered_info, total_size_data = get_data(file_path, folder)
+        ordered_info, total_size_data = get_data(file_name, folder)
         readers = init_readers(number_readers, reader_size=total_size_data)
 
         for tape in ordered_info.items():
@@ -147,9 +147,9 @@ def assign_readers(number_readers, file_path, folder):
         return readers
 
 
-def main_process(number_readers, file_path, folder):
+def main_process(number_readers, file_name, folder):
     try:
-        readers = assign_readers(number_readers=number_readers, file_path=file_path, folder=folder)
+        readers = assign_readers(number_readers=number_readers, file_name=file_name, folder=folder)
 
         threads = []
         for reader in readers:
@@ -172,4 +172,4 @@ if __name__ == "__main__":
                         help='path to directory containing files to copy')
     args = parser.parse_args()
 
-    main_process(number_readers=args.readers, file_path=args.file, folder=args.folder)
+    main_process(number_readers=args.readers, file_name=args.file, folder=args.folder)
