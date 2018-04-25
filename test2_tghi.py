@@ -71,10 +71,10 @@ def get_data(file_name=None, folder=None):
         match = re.match(r'(^H)\s.+\s(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L1-TAPE:([^:]+)', line)
 
         if match:
-            size = int (match.group (1))
+            size = int (match.group (2))
             total_size_data = total_size_data + size
-            filename = match.group (2)
-            tapename = match.group (3)
+            filename = match.group (3)
+            tapename = match.group (4)
 
             if info.get(tapename):
                 info[tapename]['total_size'] = info[tapename]['total_size'] + size
