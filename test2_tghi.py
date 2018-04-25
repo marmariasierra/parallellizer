@@ -12,7 +12,7 @@ from collections import OrderedDict
 
 class Reader():
 
-    def __init__(self, number, size):
+    def __init__(self, number, size=0):
         self.number = number
         self.size = size
         self.__tapes_to_process = []
@@ -91,13 +91,13 @@ def get_data(file_name=None, folder=None):
             else:
                 info[tapename] = {'total_size': size, 'files': [filename]}
 
-    return OrderedDict(sorted(info.items(), key=lambda x: x[1]['total_size'], reverse=True)), total_size_data
+    return OrderedDict(sorted(info.items(), key=lambda x: x[1]['total_size'], reverse=True))
 
 
-def init_readers(number_readers, reader_size):
+def init_readers(number_readers):
     readers = []
     for i in range(int(number_readers)):
-        readers.append(Reader(i, reader_size))
+        readers.append(Reader(i))
     print("{0} Total readers initiated".format(len(readers)))
     return readers
 
@@ -135,8 +135,8 @@ def execute_read_cmd(reader):
 
 def assign_readers(number_readers, file_name, folder):
 
-        ordered_info, total_size_data = get_data(file_name, folder)
-        readers = init_readers(number_readers, reader_size=total_size_data)
+        ordered_info = get_data(file_name, folder)
+        readers = init_readers(number_readers)
 
         for tape in ordered_info.items():
             active_reader = get_next_reader(readers)
