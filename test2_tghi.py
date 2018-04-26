@@ -6,10 +6,10 @@ import re
 import tempfile
 import threading
 
-#from collections import OrderedDict
+# from collections import OrderedDict
 
 
-class Reader ():
+class Reader():
 
     def __init__(self, number, size=0):
         self.number = number
@@ -25,22 +25,19 @@ class Reader ():
         return self.__size_stored
 
     def add_tape(self, tape_name):
-        self.__tapes_to_process.append (tape_name)
+        self.__tapes_to_process.append(tape_name)
 
     def get_tapes(self):
         return self.__tapes_to_process
 
     def add_file_name(self, filenames):
-        if isinstance (filenames, str):
-            self.__files_to_process.append (filenames)
-        elif isinstance (filenames, list):
+        if isinstance(filenames, str):
+            self.__files_to_process.append(filenames)
+        elif isinstance(filenames, list):
             self.__files_to_process = self.__files_to_process + filenames
 
     def get_file_names(self):
         return self.__files_to_process
-
-    def set_execute_cmd(self, output):
-        self.cmd_output = output
 
 
 def get_data(file_name=None, folder=None):
@@ -48,48 +45,46 @@ def get_data(file_name=None, folder=None):
 
     folder = folder if folder else ""
     if file_name:
-        outputls = os.popen ('ghi_ls -le -f ' + file_name).read ()
-        outputls = outputls.split ('\n')
+        outputls = os.popen('ghi_ls -le -f ' + file_name).read()
+        outputls = outputls.split('\n')
 
     elif folder:
-        outputls = os.popen('ghi_ls -le ' + folder).read ()
-        outputls = outputls.split ('\n')
-    else:
-        #outputls = os.popen("ls " + folder).read ()
-        outputls = os.popen('ghi_ls -le ' + folder).read ()
+        outputls = os.popen('ghi_ls -le ' + folder).read()
         outputls = outputls.split('\n')
-    print(outputls)
-    #folder to be implemented in next version
+    else:
+        outputls = os.popen("ls " + folder).read ()
+        # outputls = os.popen('ghi_ls -le ' + folder).read()
+        outputls = outputls.split('\n')
 
     info = {}
     total_size_data = 0
     for line in outputls:
-        #match = re.search (r'(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L1-TAPE:([^:]+)', line)
+        # match = re.search (r'(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L1-TAPE:([^:]+)', line)
         # to select only files that are in hpss: use match instead of search??)
-        #match = re.search(r'(^H)\s.+\s(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L1-TAPE:([^:]+)', line)
+        # match = re.search(r'(^H)\s.+\s(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L1-TAPE:([^:]+)', line)
         match = re.match(r'(^H)\s.+\s(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L1-TAPE:([^:]+)', line)
 
         if match:
-            size = int (match.group (2))
+            size = int(match.group(2))
             total_size_data = total_size_data + size
-            filename = match.group (3)
-            tapename = match.group (4)
+            filename = match.group(3)
+            tapename = match.group(4)
 
             if info.get(tapename):
                 info[tapename]['total_size'] = info[tapename]['total_size'] + size
                 info[tapename]['files'].append(filename)
             else:
                 info[tapename] = {'total_size': size, 'files': [filename]}
-    print(info)
+
     return info
-    #return OrderedDict(sorted(info.items(), key=lambda x: x[1]['total_size'], reverse=True))
+    # return OrderedDict(sorted(info.items(), key=lambda x: x[1]['total_size'], reverse=True))
 
 
 def init_readers(number_readers):
     readers = []
-    for i in range (int (number_readers)):
-        readers.append (Reader (i))
-    print("{0} Total readers initiated".format (len (readers)))
+    for i in range(int(number_readers)):
+        readers.append(Reader(i))
+    print("{0} Total readers initiated".format(len(readers)))
     return readers
 
 
@@ -119,25 +114,21 @@ def assign_readers(number_readers, file_name, folder):
 
 
 def execute_cmd(reader):
-    #ssize = float (reader.get_size ()) / 1000000000
-    #print("Ssize: %d" % ssize)
-    print("Reader n: {0}, Size: {1}, Tapes: {2}".format (reader.number, reader.get_size (), reader.get_tapes ()))
-    print("Files to read: {0}".format (reader.get_file_names ()))
+    # ssize = float (reader.get_size ()) / 1000000000
+    # print("Ssize: %d" % ssize)
+    print("Reader n: {0}, Size: {1}, Tapes: {2}".format(reader.number, reader.get_size(), reader.get_tapes()))
+    print("Files to read: {0}".format(reader.get_file_names()))
 
-    with tempfile.NamedTemporaryFile () as tmp:
+    with tempfile.NamedTemporaryFile() as tmp:
         filenames = reader.get_file_names()
-        #add functionality for folder
-        #tmp.write ("\n".join (filenames))
-        tmp.writelines (filenames)
-        tmp.seek (0)
-        #cmd = 'ghi_stage -v -f ' + tmp.name + ' &'
-        #cmd = 'ghi_stage -v -f ' + tmp.name
-        cmd = 'ls -l ' +tmp.name
+        # add functionality for folder
+        # tmp.write ("\n".join (filenames))
+        tmp.writelines(filenames)
+        tmp.seek(0)
+        # cmd = 'ghi_stage -v -f ' + tmp.name
+        cmd = 'ls -l ' + tmp.name
         print(cmd)
-        # out = os.popen(cmd).read()
-        #out = os.system (cmd)
-        reader.set_execute_cmd (cmd)
-    return reader
+        # out = os.system (cmd)
 
 
 def main_process(number_readers, file_name, folder):
@@ -154,12 +145,12 @@ def main_process(number_readers, file_name, folder):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser (description="parallel staging")
-    parser.add_argument ('--readers', type=int, metavar='readers', required=True,
-                         help='number of readers')
-    parser.add_argument ('--file', metavar='file',
-                         help='file containing files to copy')
-    parser.add_argument ('--folder', metavar='folder',
-                         help='path to directory containing files to copy')
-    args = parser.parse_args ()
-    assign_readers (number_readers=args.readers, file_name=args.file, folder=args.folder)
+    parser = argparse.ArgumentParser(description="parallel staging")
+    parser.add_argument('--readers', type=int, metavar='readers', required=True,
+                        help='number of readers')
+    parser.add_argument('--file', metavar='file',
+                        help='file containing files to copy')
+    parser.add_argument('--folder', metavar='folder',
+                        help='path to directory containing files to copy')
+    args = parser.parse_args()
+    main_process(number_readers=args.readers, file_name=args.file, folder=args.folder)
