@@ -48,10 +48,9 @@ def get_data(file_name=None, folder=None):
 
     folder = folder if folder else ""
     if file_name:
-        f = open (file_name, 'r')
-        for line in f:
-            ghi_ls = os.popen('ghi_ls -le ' + line).read ()
-            outputls.append(ghi_ls)
+        outputls = os.popen ('ghi_ls -le -f ' + file_name).read ()
+        outputls = outputls.split ('\n')
+
     elif folder:
         outputls = os.popen('ghi_ls -le ' + folder).read ()
         outputls = outputls.split ('\n')
@@ -81,6 +80,7 @@ def get_data(file_name=None, folder=None):
                 info[tapename]['files'].append(filename)
             else:
                 info[tapename] = {'total_size': size, 'files': [filename]}
+    print(info)
     return info
     #return OrderedDict(sorted(info.items(), key=lambda x: x[1]['total_size'], reverse=True))
 
@@ -131,7 +131,8 @@ def execute_cmd(reader):
         tmp.writelines (filenames)
         tmp.seek (0)
         #cmd = 'ghi_stage -v -f ' + tmp.name + ' &'
-        cmd = 'ghi_stage -v -f ' + tmp.name
+        #cmd = 'ghi_stage -v -f ' + tmp.name
+        cmd = 'ls -l ' +tmp.name
         print(cmd)
         # out = os.popen(cmd).read()
         #out = os.system (cmd)
