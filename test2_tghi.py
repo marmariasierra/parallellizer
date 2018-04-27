@@ -55,7 +55,7 @@ def get_data(file_name=None, folder=None):
         #outputls = os.popen("ls " + folder).read ()
         outputls = os.popen('ghi_ls -le ' + folder).read()
         outputls = outputls.split('\n')
-    #info = {'04451400': {'total_size': 723571, 'files': ['/testghi/ghi.after', '/testghi/ghi_ls-lheR.after_ghi_2.5_restore_test']}, '04451500': {'total_size': 348385, 'files': ['/testghi/find.-ls.before_ghi_2.5_restore_test']}}
+        #add the path tho the current directory to the filename!!# TODO add path to the files
 
     info = {}
     total_size_data = 0
@@ -76,7 +76,7 @@ def get_data(file_name=None, folder=None):
                 info[tapename]['files'].append(filename)
             else:
                 info[tapename] = {'total_size': size, 'files': [filename]}
-
+    print(info)
     return info
     #return OrderedDict(sorted(info.items(), key=lambda x: x[1]['total_size'], reverse=True))
 
@@ -122,12 +122,13 @@ def execute_cmd(reader):
 
     with tempfile.NamedTemporaryFile() as tmp:
         filenames = reader.get_file_names()
-        # add functionality for folder
-        # tmp.write ("\n".join (filenames))
-        tmp.writelines(filenames)
+        #tmp.write(filenames)
+        tmp.writelines("%s\n" % f for f in filenames)
+        #tmp.write("\n")
         tmp.seek(0)
         cmd = 'ghi_stage -v -f ' + tmp.name
         #cmd = 'ls -l ' + tmp.name
+        #cmd = 'more ' + tmp.name
         print(cmd)
         out=os.system (cmd)
 
@@ -155,3 +156,4 @@ if __name__ == "__main__":
                         help='path to directory containing files to copy')
     args = parser.parse_args()
     main_process(number_readers=args.readers, file_name=args.file, folder=args.folder)
+
