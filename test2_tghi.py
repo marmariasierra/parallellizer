@@ -151,6 +151,7 @@ def execute_cmd(reader):
 def validate_parameters(number_readers, file_path, folder):
     if not isinstance(int(number_readers), int):
         raise Exception("Number of readers parameter is not correct. Please provide an integer value")
+    # not necessary, the argparse checks already that readers is an integer
 
     # if file_path and not os.path.exists(file_path):
     #     raise Exception("File name provided is not correct or does not exists")
@@ -174,13 +175,22 @@ def main_process(number_of_readers, file_name, folder):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="parallel staging")
+    parser = argparse.ArgumentParser(description="parallel staging of files")
     parser.add_argument('--readers', type=int, metavar='readers', required=True,
-                        help='number of parallel processes to launch. Max XXX')
-    parser.add_argument('--file', metavar='file',
+                        help='number of parallel staging processes to launch. Max XXX')
+    # parser.add_argument('parallel processes', type=int, metavar='parallel processes', choices=[ 1, 2, 3, XX],
+    #                     help='number of parallel processes to launch. Max XXX')
+    # parser.add_argument('--file', metavar='file',
+    #                     help='file containing files to stage, absolute path needed')
+    # parser.add_argument('--folder', metavar='folder',
+    #                     help='absolute path to the directory containing files to stage. Empty for current directory')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--file', metavar='file',
                         help='file containing files to stage, absolute path needed')
-    parser.add_argument('--folder', metavar='folder',
-                        help='absolute path to the directory containing files to stage. Empty for working directory')
+    group.add_argument('--folder', metavar='folder',
+                        help='absolute path to the directory containing files to stage. Empty for current directory')
     args = parser.parse_args()
 
     main_process(number_of_readers=args.readers, file_name=args.file, folder=args.folder)
+
+    # Note that by default, if an optional argument isn’t used, the relevant variable, in this case args.verbosity, is given None as a value
