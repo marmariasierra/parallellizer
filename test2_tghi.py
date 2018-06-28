@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(threadName)s %(me
 logger = logging.getLogger(__name__)
 
 
-class Reader():
+class Reader:
 
     def __init__(self, number, size=0):
         self.number = number
@@ -45,28 +45,27 @@ class Reader():
 
 
 def get_data(file_name=None, folder=None):
-    outputls = []
 
-    # folder = folder if folder else ""
+    ghils_output = []
 
     if file_name:
-        outputls = os.popen('ghi_ls -leu -f ' + file_name).read()
-        outputls = outputls.split('\n')
+        ghils_output = os.popen('ghi_ls -leu -f ' + file_name).read().split('\n')
+        # ghils_output = ghils_output.split('\n')
         # catch error if file is not found: "Cannot open 'tt.txt', errno = 2"/"Could not stat 'tt.tx'. Error: 2" (absolute path needed)
 
     elif folder:
-        outputls = os.popen('ghi_ls -leRu ' + folder).read()
-        outputls = outputls.split('\n')
+        ghils_output = os.popen('ghi_ls -leRu ' + folder).read()
+        ghils_output = ghils_output.split('\n')
         # catch error if folder is not found: "Could not stat '/smar'. Error: 2" (absolute path needed)
     else:
         folder = os.getcwd()
         print(folder)
-        outputls = os.popen('ghi_ls -leRu ' + folder).read()
-        outputls = outputls.split('\n')
+        ghils_output = os.popen('ghi_ls -leRu ' + folder).read()
+        ghils_output = ghils_output.split('\n')
 
     info = {}
     # total_size_data = 0
-    for line in outputls:
+    for line in ghils_output:
         # match = re.search (r'(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L1-TAPE:([^:]+)', line)
         match = re.match(r'(^H)\s.+\s(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L1-TAPE:([^:]+)', line)
 
@@ -99,13 +98,14 @@ def get_next_reader(readers):
     reader_number = 0
     prev_reader_size = 0
 
-    for index, reader in enumerate(readers):
     # for reader_number, reader in enumerate(readers):
+    for index, reader in enumerate(readers):
         if reader.get_size() < prev_reader_size:
             reader_number = index
-          #  reader_number
+            # reader_number
         prev_reader_size = reader.get_size()
     return reader_number
+
 
 def check_reader_result(future):
     reader = future.result()
@@ -129,28 +129,30 @@ def assign_readers(number_of_readers, file_name, folder):
 def execute_cmd(reader):
     # ssize = float (reader.get_size ()) / 1000000000
     # print("Ssize: %d" % ssize)
-    # print("Reader n: {0}, Size: {1}, Tapes: {2}".format(reader.number, reader.get_size(), reader.get_tapes()))
-    # print("Files to read: {0}".format(reader.get_file_names()))
+
+    print("ghi_stage_process n: {0}, Size: {1}, Tapes: {2}".format(reader.number, reader.get_size(), reader.get_tapes()))
+    print("Files to stage: {0}".format(reader.get_file_names()))
     # logger.debug("Ssize: %d" % ssize)
-    logger.debug("Reader n: {0}, Size: {1}, Tapes: {2}".format(reader.number, reader.get_size(), reader.get_tapes()))
-    logger.debug("Files to read: {0}".format(reader.get_file_names()))
+    # logger.debug("Reader n: {0}, Size: {1}, Tapes: {2}".format(reader.number, reader.get_size(), reader.get_tapes()))
+    # logger.debug("Files to read: {0}".format(reader.get_file_names()))
+    # To stage files within a directory without waiting:
+    # % ghi_stage - t 0 / gpfs_test_directory / stuff
 
     with tempfile.NamedTemporaryFile() as tmp:
-        filenames = reader.get_file_names()
-        # tmp.write(filenames)
-        tmp.writelines("%s\n" % f for f in filenames)
-        # tmp.write("\n")
+        files = reader.get_file_names()
+        tmp.writelines("%s\n" % f for f in files)
         tmp.seek(0)
-        cmd = 'ghi_stage -v -f ' + tmp.name
+        ghi_cmd = 'ghi_stage -v -f ' + tmp.name
         # cmd = 'ghi_stage -v -t 0 -f ' + tmp.name
         # cmd = 'ls -l ' + tmp.name
         # cmd = 'more ' + tmp.name
-        print(cmd)
-        out = os.system(cmd)
+        print(ghi_cmd)
+        outcmd = os.system(ghi_cmd)
 
-def validate_parameters(number_readers, file_path, folder):
-    if not isinstance(int(number_readers), int):
-        raise Exception("Number of readers parameter is not correct. Please provide an integer value")
+
+# def validate_parameters(number_readers, file_path, folder):
+#     if not isinstance(int(number_readers), int):
+#         raise Exception("Number of readers parameter is not correct. Please provide an integer value")
     # not necessary, the argparse checks already that readers is an integer
 
     # if file_path and not os.path.exists(file_path):
@@ -193,4 +195,4 @@ if __name__ == "__main__":
 
     main_process(number_of_readers=args.readers, file_name=args.file, folder=args.folder)
 
-    # Note that by default, if an optional argument isn’t used, the relevant variable, in this case args.verbosity, is given None as a value
+    # Note that by default, if an optional argument is not used, the relevant variable, is given None as a value

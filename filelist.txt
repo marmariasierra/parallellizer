@@ -1,11 +1,22 @@
-/testghi/find.-ls.after
-/testghi/find.-ls.after_ghi_2.5_restore_test 
-/testghi/find.-ls.before_ghi_2.5_restore_test
-/testghi/find.-print.after
-/testghi/find.after
-/testghi/find.before
-/testghi/ghi.after
-/testghi/ghi.before
-/testghi/ghi_ls-lheR.after
-/testghi/ghi_ls-lheR.after_ghi_2.5_restore_test
+H  -rw-r--r--   1  root      root        348385 Jun 30 2016  ./find.-ls.before_ghi_2.5_restore_test MIDX:34 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451500:105473024 L2-TAPE:04452400:105473024
+H  -rw-r--r--   1  root      root        312541 Jul 04 2016  ./find.before MIDX:35 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451400:1713152 L2-TAPE:04452400:1713152 
+H  -rw-r--r--   1  root      root        361058 Jul 04 2016  ./ghi.after MIDX:35 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451500:1713152 L2-TAPE:04452400:1713152
+H  -rw-r--r--   1  root      root        364473 Jul 04 2016  ./ghi.before MIDX:35 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451400:1713152 L2-TAPE:04452400:1713152 
+H  -rw-r--r--   1  root      root        362513 Jun 30 2016  ./ghi_ls-lheR.after_ghi_2.5_restore_test MIDX:35 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451400:1713152 L2-TAPE:04452400:1713152 
+H  -rw-rw-r--   1  root      root      104755200 Jun 30 2016  ./scratch.tar MIDX:34 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451500:105473024 L2-TAPE:04452400:105473024 
+H  -rw-r--r--   1  root      root      104918800 Dec 05 2016  MPCDF/TEST/test%20fileNON01.txt MIDX:35 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451300:104918800 L2-TAPE:04452300:104918800 
+G  -rw-r--r--   1  root      root             0 Jun 22 2016  /testghi/test_delete_files_from_snapshot/file0194
+H  -rw-r--r--   1  root      root      1368391680 May 12 2016  /testghi/test_delete_files_from_snapshot/file0195 MIDX:19 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451300:1368391680 L2-TAPE:03384600:1368391680
+H  -rw-r--r--   1  root      root      1368391680 May 12 2016  /testghi/test_delete_files_from_snapshot/file0196 MIDX:19 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451300:1368391680 L2-TAPE:03384600:1368391680
+H  -rw-r--r--   1  root      root      1368391680 May 12 2016  /testghi/test_delete_files_from_snapshot/file0197 MIDX:19 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451400:1368391680 L2-TAPE:03384600:1368391680
+H  -rw-r--r--   1  root      root      1368391680 May 12 2016  /testghi/test_delete_files_from_snapshot/file0198 MIDX:19 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451400:1368391680 L2-TAPE:03384600:1368391680
+-  lrwxrwxrwx   1  root      root            34 Dec 01 2015  /testghi/lib/gcc/x86_64-redhat-linux/4.4.4/libgomp.so -> ../../../../lib64/libgomp.so.1.0.0
+-  lrwxrwxrwx   1  root      root            20 Dec 01 2015  /testghi/lib/gcc/x86_64-redhat-linux/4.4.4/libgcc_s.so -> /lib64/libgcc_s.so.1
+H  -rw-r--r--   1  root      root          1740 Jul 22 2015  /testghi/lib/gcc/x86_64-redhat-linux/4.4.4/32/crtbegin.o MIDX:17 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451400:120541184 L2-TAPE:03384600:120541184
+H  -rw-r--r--   1  root      root          2168 Jul 22 2015  /testghi/lib/gcc/x86_64-redhat-linux/4.4.4/32/crtbeginS.o MIDX:17 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451400:120541184 L2-TAPE:03384600:120541184
+B  -rw-r--r--   1  root      root        162001 Jun 30 2016  /testghi/find.-ls.after_ghi_2.5_restore_test MIDX:35 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451400:1713152 L2-TAPE:03384600:1713152
+H  -rw-r--r--   1  root      root        312541 Jul 04 2016  /testghi/find.before MIDX:35 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451400:1713152 L2-TAPE:03384600:1713152
+B  -rw-r--r--   1  root      root        144277 Jul 04 2016  /testghi/find.after MIDX:35 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451300:1713152 L2-TAPE:03384600:1713152
+H  -rw-r--r--   1  root      root      2060974080 Apr 25 16:19 /testghi/smar/Rait_Test7.tar MIDX:40 COS:34 FF:0 L0-DISK:2060974080 L1-TAPE:04451300:2060974080 L2-TAPE:04452300:2060974080
+
 
