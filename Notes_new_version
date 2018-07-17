@@ -1,0 +1,59 @@
+
+new regular expression:
+(^H)\s.+\s(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L0-DISK:(\d+)\sL1-TAPE:(\d+)
+
+changes in the code:
+
+        if match:
+            size = int(match.group(2))
+            filename = match.group(3)
+            diskname = match.group(4)
+            tapename = match.group(5)
+
+            if diskname == "0":
+
+                if info.get(tapename):
+                    info[tapename]['total_size'] = info[tapename]['total_size'] + size
+                    info[tapename]['files'].append(filename)
+                else:
+                    info[tapename] = {'total_size': size, 'files': [filename]}
+            else:
+                if info.get(diskname):
+                    info[diskname]['total_size'] = info[diskname]['total_size'] + size
+                    info[diskname]['files'].append(filename)
+                else:
+                    info[diskname] = {'total_size': size, 'files': [filename]}
+
+    logger.debug("Processed info: {0}".format(info))
+    return info
+
+        if file_name:
+            ghils_output = os.popen('ghi_ls -leu -f ' + file_name + '| sort -u ').read().split('\n')
+            logger.info("Getting files from file_name: {0}, {1}".format(file_name, ghils_output))
+
+
+output in the previous version:
+
+INFO Getting files from file_name: filelist_DOWN.txt, ['H  -rw-r--r--   1  root      root      104918800 Dec 05 2016  /testghi/MPCDF/TEST/test%20fileNON01.txt MIDX:35 COS:34 FF:0 L0-
+DISK:0 L1-TAPE:04451300:104918800 L2-TAPE:04452300:104918800 ', 'B  -rw-r--r--   1  root      root          6229 Jan 26 2016  /testghi/find.-ls.after MIDX:16 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451300:28672
+ L2-TAPE:04452300:28672 ', 'H  -rw-r--r--   1  root      root        348385 Jun 30 2016  /testghi/find.-ls.before_ghi_2.5_restore_test MIDX:34 COS:34 FF:0 L0-DISK:0 L1-TAPE:03353200:105473024 L2-TAPE:03
+384600:105473024 ', 'B  -rw-r--r--   1  root      root           605 Jan 26 2016  /testghi/find.-print.after MIDX:16 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451300:28672 L2-TAPE:04452300:28672 ', 'B  -rw-r--r--
+   1  root      root        144277 Jul 04 2016  /testghi/find.after MIDX:35 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451400:1713152 L2-TAPE:03384600:1713152 ', 'H  -rw-r--r--   1  root      root        312541 Ju
+l 04 2016  /testghi/find.before MIDX:35 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451400:1713152 L2-TAPE:03384600:1713152 ', 'H  -rw-r--r--   1  root      root        361058 Jul 04 2016  /testghi/ghi.after MIDX:3
+5 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451400:1713152 L2-TAPE:03384600:1713152 ', 'H  -rw-r--r--   1  root      root        364473 Jul 04 2016  /testghi/ghi.before MIDX:35 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451
+400:1713152 L2-TAPE:03384600:1713152 ', 'B  -rw-r--r--   1  root      root         17710 Jan 26 2016  /testghi/ghi_ls-lheR.after MIDX:16 COS:34 FF:0 L0-DISK:0 L1-TAPE:04451300:28672 L2-TAPE:04452300:286
+72 ', 'H  -rw-rw-r--   1  root      root      104755200 Jun 30 2016  /testghi/scratch.tar MIDX:34 COS:34 FF:0 L0-DISK:0 L1-TAPE:03353200:105473024 L2-TAPE:03384600:105473024 ', '']
+2018-07-17 10:56:08 DEBUG Processed info: {'04451300': {'total_size': 104918800, 'files': ['/testghi/MPCDF/TEST/test%20fileNON01.txt']}, '03353200': {'total_size': 105103585, 'files': ['/testghi/find.-l
+s.before_ghi_2.5_restore_test', '/testghi/scratch.tar']}, '04451400': {'total_size': 1038072, 'files': ['/testghi/find.before', '/testghi/ghi.after', '/testghi/ghi.before']}}
+2018-07-17 10:56:08 INFO 3 Total readers initiated
+2018-07-17 10:56:08 DEBUG ghi_stage_process n: 0, Size: 104918800, Tapes: ['04451300']
+2018-07-17 10:56:08 DEBUG ghi_stage_process n: 1, Size: 105103585, Tapes: ['03353200']
+2018-07-17 10:56:08 DEBUG ghi_stage_process n: 2, Size: 1038072, Tapes: ['04451400']
+2018-07-17 10:56:08 DEBUG Files to stage: ['/testghi/MPCDF/TEST/test%20fileNON01.txt']
+2018-07-17 10:56:08 DEBUG Files to stage: ['/testghi/find.-ls.before_ghi_2.5_restore_test', '/testghi/scratch.tar']
+2018-07-17 10:56:08 DEBUG Files to stage: ['/testghi/find.before', '/testghi/ghi.after', '/testghi/ghi.before']
+
+example of file saved in disk:
+H  -rw-r--r--   1  root      root      12523520 Apr 25 16:13 /testghi/smar/Rait_Test1.tar MIDX:40 COS:34 FF:0 L0-DISK:153671680 L1-TAPE:04451300:153671680 L2-TAPE:03384700:153671680 
+
+By default use one of the readers for files in disk
