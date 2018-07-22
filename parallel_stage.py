@@ -23,8 +23,6 @@ formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s %(message)s',
 file_handler = TimedRotatingFileHandler(path, when="midnight", interval=1, backupCount=1)
 file_handler.setFormatter(formatter)
 
-# TODO: uncomment to have logging in console
-#screen_handler = logging.StreamHandler(stream=sys.stdout)
 screen_handler = logging.StreamHandler()
 screen_handler.setFormatter(formatter)
 
@@ -62,41 +60,40 @@ class Reader:
     def get_file_names(self):
         return self.__files_to_process
 
-
 def get_data(file_name=None, folder=None):
-    ghils_output = []
 
     try:
 
         if file_name:
-            ghils_output = os.popen('ghi_ls -leu -f ' + file_name).read().split('\n')
-            logger.debug("Getting files from file_name: {0}, {1}".format(file_name, ghils_output))
+            ghils_output = os.popen('ghi_ls -leu -f ' + file_name + '| sort -u ').read().split('\n')
+            logger.info("Getting files from file_name: {0}, {1}".format(file_name, ghils_output))
 
         elif folder:
-            ghils_output = os.popen('ghi_ls -leRu ' + folder).read()
-            logger.debug("Getting files from folder: {0}, {1}".format(folder, ghils_output))
+            ghils_output = os.popen('ghi_ls -leRu ' + folder).read().split('\n')
+            logger.info("Getting files from folder: {0}, {1}".format(folder, ghils_output))
 
         else:
             folder = os.getcwd()
-            print(folder)
-            ghils_output = os.popen('ghi_ls -leRu ' + folder).read()
-            logger.debug("Getting files from current folder: {0}".format(ghils_output))
+            ghils_output = os.popen('ghi_ls -leRu ' + folder).read().split('\n')
+            logger.info("Getting files from current folder: {0}".format(ghils_output))
+
+        if [''] in ghils_output:
+            raise Exception(" No files to stage")
 
     except Exception as e:
-        logger.error("ERROR:{0}".format(e))
+        logger.error("getting data from ghi_ls command:{0}".format(e))
         raise e
 
+    # test with local data
     ghils_output = dummydata().split('\n')
 
     info = {}
-    # total_size_data = 0
+
     for line in ghils_output:
-        # match = re.search (r'(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L1-TAPE:([^:]+)', line)
         match = re.match(r'(^H)\s.+\s(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L1-TAPE:([^:]+)', line)
 
         if match:
             size = int(match.group(2))
-            # total_size_data = total_size_data + size
             filename = match.group(3)
             tapename = match.group(4)
 
@@ -105,14 +102,17 @@ def get_data(file_name=None, folder=None):
                 info[tapename]['files'].append(filename)
             else:
                 info[tapename] = {'total_size': size, 'files': [filename]}
+
+    logger.debug("Processed info: {0}".format(info))
     return info
+
 
 def init_readers(number_of_readers):
     readers = []
     for i in range(int(number_of_readers)):
         readers.append(Reader(number=i))
 
-    logger.debug("{0} Total readers initiated".format(len(readers)))
+    logger.info("{0} Total readers initiated".format(len(readers)))
     return readers
 
 
@@ -124,6 +124,7 @@ def get_next_reader(readers):
         if reader.get_size() < prev_reader_size:
             reader_number = index
         prev_reader_size = reader.get_size()
+
     return reader_number
 
 
@@ -136,10 +137,14 @@ def assign_readers(number_of_readers, file_name, folder):
         readers[active_reader].add_file_name(tape[1].get('files'))
         readers[active_reader].add_size(tape[1].get('total_size'))
         readers[active_reader].add_tape(tape[0])
+
     return readers
 
 
 def execute_cmd(reader):
+
+    # ssize = float (reader.get_size ()) / 1000000000
+    # logger.debug("Ssize: %d" % ssize)
     logger.debug("ghi_stage_process n: {0}, Size: {1}, Tapes: {2}".format(reader.number, reader.get_size(), reader.get_tapes()))
     logger.debug("Files to stage: {0}".format(reader.get_file_names()))
 
@@ -148,6 +153,8 @@ def execute_cmd(reader):
         tmp.writelines("%s\n" % f for f in files)
         tmp.seek(0)
         ghi_cmd = 'ghi_stage -v -f ' + tmp.name
+        # ghi_cmd = 'ghi_stage -v -t 0 -f ' + tmp.name
+        # cmd = 'more ' + tmp.name
 
         try:
             outcmd = os.system(ghi_cmd)
@@ -158,6 +165,7 @@ def execute_cmd(reader):
         except Exception as e:
             logger.error("while executing ghi_stage: {0}, {1}, files: {2}".format(ghi_cmd, e, files))
 
+
 def main_process(number_of_readers, file_name, folder):
     try:
         readers = assign_readers(number_of_readers=number_of_readers, file_name=file_name, folder=folder)
@@ -167,17 +175,19 @@ def main_process(number_of_readers, file_name, folder):
         [thread.start() for thread in threads]
 
     except Exception as e:
-        print("ERROR in main process block: {0}".format(e))
-        raise e
+        logger.error("in main process block: {0}".format(e))
+        os._exit(1)
 
 
 if __name__ == "__main__":
 
-    logger.info("Started script by User: {0}".format(getpass.getuser()))
+    logger.info("Stage script started by User: {0}".format(getpass.getuser()))
 
     parser = argparse.ArgumentParser(description="parallel staging of files")
     parser.add_argument('--number', type=int, metavar='parallel processors', required=True, choices=range(1,5),
                     help='number of parallel staging processes to launch. Max 4')
+    # parser.add_argument('parallel processes', type=int, metavar='parallel processes', choices=range(1,5),
+    #                     help='number of parallel processes to launch. Max 4')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--file', metavar='file name',
                        help='file containing files to stage, absolute path needed')
@@ -186,3 +196,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main_process(number_of_readers=args.number, file_name=args.file, folder=args.folder)
+
