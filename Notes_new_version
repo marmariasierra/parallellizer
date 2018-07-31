@@ -1,4 +1,7 @@
 
+the temporary file must be created where the script resides (no access to /tmp)
+with tempfile.NamedTemporaryFile(dir='/ghi/b1/test/test_stage') as tmp:
+
 new regular expression:
 (^H)\s.+\s(\d+)\s\w{3}\s\d{2}\s(?:\d{2}:\d{2}|\d{4})\s+([^\s]+).+L0-DISK:(\d+)\sL1-TAPE:(\d+)
 
